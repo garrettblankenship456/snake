@@ -21,7 +21,7 @@ int main(){
   int score = 0;
   direction snakeDir = NORTH;
   direction previousDir = snakeDir;
-  float moveTime = 0.75f;
+  float moveTime = 0.50f;
   sf::Clock clock;
 
   // Initialize apple
@@ -102,7 +102,7 @@ int main(){
       snakeDir = SOUTH;
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) && previousDir != EAST)
       snakeDir = WEST;
-      
+
     // Only move if the time has been reached
     if(clock.getElapsedTime().asSeconds() > moveTime){
       previousDir = snakeDir;
@@ -148,7 +148,7 @@ int main(){
         addSnakeBlock();
 
         // Slowly increase movement speed
-        moveTime -= 0.1f;
+        moveTime -= 0.02f;
       }
 
       // Restart once moved
