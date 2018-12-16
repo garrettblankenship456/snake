@@ -20,6 +20,7 @@ int main(){
   sf::Vector2i headPos(5, 5);
   int score = 0;
   direction snakeDir = NORTH;
+  direction previousDir = snakeDir;
   float moveTime = 0.75f;
   sf::Clock clock;
 
@@ -93,19 +94,19 @@ int main(){
   };
   auto displayGame = [&](){
     // Handle controls
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W) && snakeDir != SOUTH)
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W) && previousDir != SOUTH)
       snakeDir = NORTH;
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && snakeDir != WEST)
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && previousDir != WEST)
       snakeDir = EAST;
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) && snakeDir != NORTH)
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) && previousDir != NORTH)
       snakeDir = SOUTH;
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) && snakeDir != EAST)
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) && previousDir != EAST)
       snakeDir = WEST;
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::E))
-      addSnakeBlock();
-
+      
     // Only move if the time has been reached
     if(clock.getElapsedTime().asSeconds() > moveTime){
+      previousDir = snakeDir;
+
       if(snakeDir == NORTH)
         headPos.y -= 1;
       else if(snakeDir == EAST)
@@ -145,6 +146,9 @@ int main(){
       if(headPos.x == applePos.x && headPos.y == applePos.y){
         moveApple();
         addSnakeBlock();
+
+        // Slowly increase movement speed
+        moveTime -= 0.1f;
       }
 
       // Restart once moved
@@ -196,6 +200,7 @@ int main(){
         headPos = sf::Vector2i(5, 5);
         snakeDir = NORTH;
         blocks.erase(blocks.begin() + 1, blocks.end());
+        moveTime = 0.75f;
 
         state = GAME_RUN;
       } else if(inside(sf::Vector2f(sf::Mouse::getPosition(window)), quitButton)){
