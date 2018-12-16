@@ -21,13 +21,29 @@ int main(){
   int score = 0;
   direction snakeDir = NORTH;
 
+  // Initialize apple
+  sf::Vector2i applePos(7, 7);
+  block apple = {new sf::RectangleShape(sf::Vector2f(blockSize, blockSize)) };
+  apple.shape->setFillColor(sf::Color::Red);
+  apple.shape->setPosition(sf::Vector2f(applePos.x * blockSize, applePos.y * blockSize));
+
   // Initialize array of snake blocks
   std::vector<block> blocks;
   block firstBlock = { new sf::RectangleShape(sf::Vector2f(blockSize, blockSize)) };
   firstBlock.shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
   blocks.push_back(firstBlock);
 
+  // Initialize random apple seed
+  srand(time(NULL));
+
   // Lambda functions
+  auto moveApple = [&](){
+    int newX = rand() % (WINDOW_WIDTH / blockSize);
+    int newY = rand() % (WINDOW_HEIGHT / blockSize);
+
+    applePos = sf::Vector2i(newX, newY);
+    apple.shape->setPosition(sf::Vector2f(applePos.x * blockSize, applePos.y * blockSize));
+  };
   auto addSnakeBlock = [&](){
     block temp = { new sf::RectangleShape(sf::Vector2f(blockSize, blockSize)) };
     temp.shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
@@ -122,12 +138,19 @@ int main(){
       }
     }
 
+    // Check if the snake ate the apple
+    if(headPos.x == applePos.x && headPos.y == applePos.y){
+      moveApple();
+      addSnakeBlock();
+    }
+
     // Set the score as the length of the snake
     score = blocks.size();
 
     usleep(200000);
 
-    // Render all the blocks
+    // Render all the blocks and apple
+    window.draw(*apple.shape);
     for(int i = 0; i < blocks.size(); i++)
       window.draw(*blocks[i].shape);
   };
@@ -139,6 +162,7 @@ int main(){
 
     // Score
     sf::Text scoreText("Score: 0", defaultFont);
+    scoreText.setString("Score: " + std::to_string(score));
     scoreText.setPosition((WINDOW_WIDTH / 2) - (text.getLocalBounds().width / 2), 100);
 
     // Start button
