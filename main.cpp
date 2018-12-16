@@ -22,12 +22,17 @@ int main(){
   direction snakeDir = NORTH;
 
   // Initialize array of snake blocks
-  std::vector<block*> blocks;
+  std::vector<block> blocks;
   block firstBlock = { new sf::RectangleShape(sf::Vector2f(blockSize, blockSize)) };
   firstBlock.shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
-  blocks.push_back(&firstBlock);
+  blocks.push_back(firstBlock);
 
   // Lambda functions
+  auto addSnakeBlock = [&](){
+    block temp = { new sf::RectangleShape(sf::Vector2f(blockSize, blockSize)) };
+    temp.shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
+    blocks.push_back(temp);
+  };
   auto displayMenu = [&](){
     // Title
     sf::Text text("Snake", defaultFont);
@@ -70,21 +75,43 @@ int main(){
   };
   auto displayGame = [&](){
     // Handle controls
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W) && snakeDir != SOUTH)
       snakeDir = NORTH;
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && snakeDir != WEST)
       snakeDir = EAST;
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) && snakeDir != NORTH)
       snakeDir = SOUTH;
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) && snakeDir != EAST)
       snakeDir = WEST;
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+      addSnakeBlock();
 
     // Move snake accordingly
+    if(snakeDir == NORTH)
+      headPos.y -= 1;
+    else if(snakeDir == EAST)
+      headPos.x -= 1;
+    else if(snakeDir == SOUTH)
+      headPos.y += 1;
+    else if(snakeDir == WEST)
+      headPos.x += 1;
+
+    // Update the snakes position
+    for(int i = blocks.size() - 1; i >= 0; i--){
+      if(i == 0)
+        blocks[i].shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
+      else
+        blocks[i].shape->setPosition(blocks[i - 1].shape->getPosition());
+    }
+
+    // Check walls for collisions
     
+
+    usleep(100000);
 
     // Render all the blocks
     for(int i = 0; i < blocks.size(); i++)
-      window.draw(*blocks[i]->shape);
+      window.draw(*blocks[i].shape);
   };
   auto displayEnd = [&](){
 
