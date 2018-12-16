@@ -5,7 +5,9 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
+#include <iostream>
 
 // Classes
+#include "helperfunctions.hpp"
 #include "enumerators.hpp"
 #include "datastructures.hpp"
