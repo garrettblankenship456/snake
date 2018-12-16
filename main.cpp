@@ -105,16 +105,83 @@ int main(){
     }
 
     // Check walls for collisions
-    
+    if(headPos.x < 0 || headPos.x > WINDOW_WIDTH / blockSize || headPos.y < 0 || headPos.y > WINDOW_HEIGHT / blockSize){
+      std::cout << "Game ended" << std::endl;
+      state = GAME_END;
+    }
 
-    usleep(100000);
+    // Check for self-snake collisions
+    for(int i = blocks.size() - 1; i >= 0; i--){
+      if(i != 0){
+        float snakeX = blocks[i].shape->getPosition().x / blockSize;
+        float snakeY = blocks[i].shape->getPosition().y / blockSize;
+        if(snakeX == headPos.x && snakeY == headPos.y){
+          std::cout << "You hit yourself!" << std::endl;
+          state = GAME_END;
+        }
+      }
+    }
+
+    // Set the score as the length of the snake
+    score = blocks.size();
+
+    usleep(200000);
 
     // Render all the blocks
     for(int i = 0; i < blocks.size(); i++)
       window.draw(*blocks[i].shape);
   };
   auto displayEnd = [&](){
+    // Title
+    sf::Text text("Snake", defaultFont);
+    text.setCharacterSize(40);
+    text.setPosition((WINDOW_WIDTH / 2) - (text.getLocalBounds().width / 2), 40);
 
+    // Score
+    sf::Text scoreText("Score: 0", defaultFont);
+    scoreText.setPosition((WINDOW_WIDTH / 2) - (text.getLocalBounds().width / 2), 100);
+
+    // Start button
+    sf::RectangleShape startButton(sf::Vector2f(300, 40));
+    startButton.setPosition((WINDOW_WIDTH / 2) - (startButton.getLocalBounds().width / 2), 200);
+    sf::Text startText("START GAME", defaultFont);
+    startText.setFillColor(sf::Color::Black);
+    startText.setPosition(sf::Vector2f((startButton.getPosition().x) + (startText.getLocalBounds().width / 3),
+                                        startButton.getPosition().y));
+
+    // Quit button
+    sf::RectangleShape quitButton(sf::Vector2f(300, 40));
+    quitButton.setPosition((WINDOW_WIDTH / 2) - (quitButton.getLocalBounds().width / 2), 250);
+    sf::Text quitText("QUIT GAME", defaultFont);
+    quitText.setFillColor(sf::Color::Black);
+    quitText.setPosition(sf::Vector2f((quitButton.getPosition().x) + (quitText.getLocalBounds().width / 2.25),
+                                        quitButton.getPosition().y));
+
+    // Handle controls
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+      if(inside(sf::Vector2f(sf::Mouse::getPosition(window)), startButton)){
+        std::cout << "Starting game" << std::endl;
+
+        // Reset game variables
+        score = 0;
+        headPos = sf::Vector2i(5, 5);
+        snakeDir = NORTH;
+        blocks.erase(blocks.begin() + 1, blocks.end());
+
+        state = GAME_RUN;
+      } else if(inside(sf::Vector2f(sf::Mouse::getPosition(window)), quitButton)){
+        std::cout << "Quitting game" << std::endl;
+        window.close();
+      }
+    }
+
+    // Draw it all
+    window.draw(text);
+    window.draw(scoreText);
+    window.draw(startButton);
+    window.draw(startText);
+    window.draw(quitButton);
+    window.draw(quitText);
   };
 
   // Window loop
