@@ -20,6 +20,8 @@ int main(){
   sf::Vector2i headPos(5, 5);
   int score = 0;
   direction snakeDir = NORTH;
+  float moveTime = 0.75f;
+  sf::Clock clock;
 
   // Initialize apple
   sf::Vector2i applePos(7, 7);
@@ -46,7 +48,7 @@ int main(){
   };
   auto addSnakeBlock = [&](){
     block temp = { new sf::RectangleShape(sf::Vector2f(blockSize, blockSize)) };
-    temp.shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
+    temp.shape->setPosition(sf::Vector2f(-blockSize * score, -blockSize * score));
     blocks.push_back(temp);
   };
   auto displayMenu = [&](){
@@ -102,52 +104,55 @@ int main(){
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::E))
       addSnakeBlock();
 
-    // Move snake accordingly
-    if(snakeDir == NORTH)
-      headPos.y -= 1;
-    else if(snakeDir == EAST)
-      headPos.x -= 1;
-    else if(snakeDir == SOUTH)
-      headPos.y += 1;
-    else if(snakeDir == WEST)
-      headPos.x += 1;
+    // Only move if the time has been reached
+    if(clock.getElapsedTime().asSeconds() > moveTime){
+      if(snakeDir == NORTH)
+        headPos.y -= 1;
+      else if(snakeDir == EAST)
+        headPos.x -= 1;
+      else if(snakeDir == SOUTH)
+        headPos.y += 1;
+      else if(snakeDir == WEST)
+        headPos.x += 1;
 
-    // Update the snakes position
-    for(int i = blocks.size() - 1; i >= 0; i--){
-      if(i == 0)
-        blocks[i].shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
-      else
-        blocks[i].shape->setPosition(blocks[i - 1].shape->getPosition());
-    }
+      // Update the snakes position
+      for(int i = blocks.size() - 1; i >= 0; i--){
+        if(i == 0)
+          blocks[i].shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
+        else
+          blocks[i].shape->setPosition(blocks[i - 1].shape->getPosition());
+      }
 
-    // Check walls for collisions
-    if(headPos.x < 0 || headPos.x > WINDOW_WIDTH / blockSize || headPos.y < 0 || headPos.y > WINDOW_HEIGHT / blockSize){
-      std::cout << "Game ended" << std::endl;
-      state = GAME_END;
-    }
+      // Check walls for collisions
+      if(headPos.x < 0 || headPos.x > WINDOW_WIDTH / blockSize || headPos.y < 0 || headPos.y > WINDOW_HEIGHT / blockSize){
+        std::cout << "Game ended" << std::endl;
+        state = GAME_END;
+      }
 
-    // Check for self-snake collisions
-    for(int i = blocks.size() - 1; i >= 0; i--){
-      if(i != 0){
-        float snakeX = blocks[i].shape->getPosition().x / blockSize;
-        float snakeY = blocks[i].shape->getPosition().y / blockSize;
-        if(snakeX == headPos.x && snakeY == headPos.y){
-          std::cout << "You hit yourself!" << std::endl;
-          state = GAME_END;
+      // Check for self-snake collisions
+      for(int i = blocks.size() - 1; i >= 0; i--){
+        if(i != 0){
+          float snakeX = blocks[i].shape->getPosition().x / blockSize;
+          float snakeY = blocks[i].shape->getPosition().y / blockSize;
+          if(snakeX == headPos.x && snakeY == headPos.y){
+            std::cout << "You hit yourself!" << std::endl;
+            state = GAME_END;
+          }
         }
       }
-    }
 
-    // Check if the snake ate the apple
-    if(headPos.x == applePos.x && headPos.y == applePos.y){
-      moveApple();
-      addSnakeBlock();
+      // Check if the snake ate the apple
+      if(headPos.x == applePos.x && headPos.y == applePos.y){
+        moveApple();
+        addSnakeBlock();
+      }
+
+      // Restart once moved
+      clock.restart().asSeconds();
     }
 
     // Set the score as the length of the snake
     score = blocks.size();
-
-    usleep(200000);
 
     // Render all the blocks and apple
     window.draw(*apple.shape);

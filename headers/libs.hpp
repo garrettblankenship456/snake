@@ -3,6 +3,7 @@
 
 // Libraries
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -11,6 +12,6 @@
 #include <time.h>
 
 // Classes
-#include "helperfunctions.hpp"
 #include "enumerators.hpp"
+#include "helperfunctions.hpp"
 #include "datastructures.hpp"
