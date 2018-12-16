@@ -13,7 +13,7 @@ int main(){
   defaultFont.loadFromFile("fonts/arial.ttf");
 
   // Initialize game state
-  gameState state = GAME_RUN;
+  gameState state = GAME_MENU;
 
   // Initialize gameplay variables
   int blockSize = 40;
