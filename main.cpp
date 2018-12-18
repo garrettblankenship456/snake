@@ -44,6 +44,17 @@ int main(){
     int newX = rand() % (WINDOW_WIDTH / blockSize);
     int newY = rand() % (WINDOW_HEIGHT / blockSize);
 
+    // Prevent the apple spawning inside the snake
+    for(int i = 0; i < blocks.size(); i++){
+      sf::Vector2f blockPos = blocks[i].shape->getPosition();
+      while(newX == blockPos.x / blockSize){
+        newX = rand() % (WINDOW_WIDTH / blockSize);
+      }
+      while(newY == blockPos.y / blockSize){
+        newY = rand() % (WINDOW_HEIGHT / blockSize);
+      }
+    }
+
     applePos = sf::Vector2i(newX, newY);
     apple.shape->setPosition(sf::Vector2f(applePos.x * blockSize, applePos.y * blockSize));
   };
