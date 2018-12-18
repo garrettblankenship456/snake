@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <time.h>
+#include <cmath>
 
 // Classes
 #include "enumerators.hpp"

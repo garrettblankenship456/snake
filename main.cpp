@@ -27,7 +27,10 @@ int main(){
   // Initialize apple
   sf::Vector2i applePos(7, 7);
   block apple = {new sf::RectangleShape(sf::Vector2f(blockSize, blockSize)) };
+  sf::Texture appleTexture;
+  appleTexture.loadFromFile("textures/apple.png");
   apple.shape->setFillColor(sf::Color::Red);
+  apple.shape->setTexture(&appleTexture, false);
   apple.shape->setPosition(sf::Vector2f(applePos.x * blockSize, applePos.y * blockSize));
 
   // Initialize array of snake blocks
@@ -88,10 +91,8 @@ int main(){
     // Handle controls
     if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
       if(inside(sf::Vector2f(sf::Mouse::getPosition(window)), startButton)){
-        std::cout << "Starting game" << std::endl;
         state = GAME_RUN;
       } else if(inside(sf::Vector2f(sf::Mouse::getPosition(window)), quitButton)){
-        std::cout << "Quitting game" << std::endl;
         window.close();
       }
     }
@@ -127,17 +128,20 @@ int main(){
       else if(snakeDir == WEST)
         headPos.x += 1;
 
-      // Update the snakes position
+      // Update the snakes position and add some color
       for(int i = blocks.size() - 1; i >= 0; i--){
         if(i == 0)
           blocks[i].shape->setPosition(sf::Vector2f(headPos.x * blockSize, headPos.y * blockSize));
         else
           blocks[i].shape->setPosition(blocks[i - 1].shape->getPosition());
+
+        // Set the color to make it more visually appealing
+        float frequency = 0.3f;
+        blocks[i].shape->setFillColor(sf::Color(sin(frequency * i) * 127 + 128, sin(frequency * i + 2) * 127 + 128, sin(frequency * i + 4) * 127 + 128));
       }
 
       // Check walls for collisions
       if(headPos.x < 0 || headPos.x > WINDOW_WIDTH / blockSize || headPos.y < 0 || headPos.y > WINDOW_HEIGHT / blockSize){
-        std::cout << "Game ended" << std::endl;
         state = GAME_END;
       }
 
@@ -147,7 +151,6 @@ int main(){
           float snakeX = blocks[i].shape->getPosition().x / blockSize;
           float snakeY = blocks[i].shape->getPosition().y / blockSize;
           if(snakeX == headPos.x && snakeY == headPos.y){
-            std::cout << "You hit yourself!" << std::endl;
             state = GAME_END;
           }
         }
